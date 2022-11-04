@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- saved from url=(0084)file:///Volumes/GoogleDrive/My%20Drive/task38.10%20select%20element.add%20event.html -->
+<html>
+  <head><title>form</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </head>
+
+<body onload="onPageLoading()">
+  <div class="container text-center">
+    <h2>Responsive Form</h2>
+    <p>sample forms 02: multi colums</p>
+
+    <div class="jumbotron container">
+      <div class="row ">
+        <div class="col-sm-3 form-group">
+          <label for="province">Province</label>
+        </div>
+        <div class="col-sm-9 form-group">
+          <select id="province-select" name="province" class="form-control">
+          </select>
+        </div>
+      </div>
+      <div class="row form-group">
+        <div class="col-sm-3">
+          <label for="district">District</label>
+        </div>
+        <div class="col-sm-9">
+          <select id="district-select" name="district" class="form-control">
+          </select>
+        </div>
+      </div>
+      <div class="row form-group">
+        <div class="col-sm-3">
+          <label for="country">Ward</label>
+        </div>
+        <div class="col-sm-3">
+          <select id="ward-select" name="ward" class="form-control">
+          </select>
+        </div>
+      </div>
+      </div>
+  </div>
+</body>
+  <script>
+    function onPageLoading() {
+      //Get data province
+    $.ajax({
+      url: "http://localhost:8081/allProvinces",
+      method: "GET",
+      success: function(pObjRes) {
+        console.log(pObjRes);
+        loadDataToCProvinceSelect(pObjRes);
+      },
+      error: function(pXhrObj) {
+        console.log(pXhrObj);
+      }
+    });
+
+    var gProvinceSelectElement = $("#province-select");
+
+    function loadDataToCProvinceSelect(pProvinceList) {
+      for (i = 0; i < pProvinceList.length; i++) {
+        var bProvinceOption = $("<option/>");
+        bProvinceOption.prop("value", pProvinceList[i].code);
+        bProvinceOption.prop("text", pProvinceList[i].name);
+        gProvinceSelectElement.append(bProvinceOption);
+      };
+    }
+
+    var gDistrictSelectElement = $("#district-select");
+
+    //callback function
+    gProvinceSelectElement.on("change", function () {
+      var bProvinceCode = $(this).val();
+      gDistrictSelectElement.html("");
+      
+      getDistrictsByProvinceCode(bProvinceCode);
+    });
+
+
+    function getDistrictsByProvinceCode(pProvinceCode) {
+      $.ajax({
+        url: "http://localhost:8081/" + pProvinceCode + "/districts",
+        method: "GET",
+        success: function(pObjRes) {
+          console.log(pObjRes);
+          loadDataToDistrictSelect(pObjRes);
+        },
+        error: function(pXhrObj) {
+          console.log(pXhrObj);
+        }
+      });
+    }
+
+    function loadDataToDistrictSelect(pDistrictList) {
+
+        for (i = 0; i < pDistrictList.length; i++) {
+          var bDistrictOption = $("<option/>");
+          bDistrictOption.prop("value", pDistrictList[i].id);
+          bDistrictOption.prop("text", pDistrictList[i].name);
+          gDistrictSelectElement.append(bDistrictOption);
+        };
+     
+    }
+    
+    var gWardSelectElement = $("#ward-select");
+    gDistrictSelectElement.on("change", function() {
+      var bDistrictId = $(this).val();
+      gWardSelectElement.html("");
+      getWardsByDistrictId(bDistrictId);
+    })
+
+    function getWardsByDistrictId(paramDistrictId) {
+      $.ajax({
+        url: "http://localhost:8081/ward?districtId=" + paramDistrictId,
+        method: "GET",
+        success: function(pObjRes) {
+          console.log(pObjRes);
+          loadDataToWardSelect(pObjRes);
+        },
+        error: function(pXhrObj) {
+          console.log(pXhrObj);
+        }
+      })
+    }
+
+    function loadDataToWardSelect(paramObj) {
+      for (i = 0; i < paramObj.length; i++) {
+          var bWardOption = $("<option/>");
+          bWardOption.prop("value", paramObj[i].id);
+          bWardOption.prop("text", paramObj[i].name);
+          gWardSelectElement.append(bWardOption);
+        };
+    }
+
+  }
+  </script>
+
+</html>
